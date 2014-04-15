@@ -1,0 +1,49 @@
+Tiny Shell (tsh.c)
+Name : AR Sai Anirudh Srinivas
+ID : 201201197
+
+Description of the various procedures used in the code:
+
+1. eval()
+   This routine is invoked when the user provides the shell with a command line input. It copies the whole command line into a
+   variable known as buf, and it parses the whole command into a string using the paresline routine.
+   The main thing this routine does is that it checks the if the user has entered an input, if yes then the function asked to be executed
+   is a builtin command or if it has to be executed separtely. If its a built in command then the it uses the builtin_cmd() routine to check 
+   which one of the set of specified built in functions has the user entered and gives output accordingly. If the entered command is not a 
+   built in function then it forks a child process and then uses the exec command to execute the entered command using the child process.
+   Simultaneously the parent function adds a new job for the process/execution in the jobs list and checks if the eneterd process is specified 
+   as a background or a foreground process and executes accordingly.
+   
+2. builtin_cmd()
+   This routine specifies the built in commands and the method in which the program needs to be executed if the built in command is encountered
+   There are 4 built in commands :
+     . quit() : exit from the process 
+     . jobs() : list the jobs in the job list
+     . bg :  Check if the enetered command is to be executed in background , emits the next prompt
+     . fg :  Check if the enetered command is to be executed in foreground , waits the procedure to be executed.
+     
+3. do_bgfg()
+   This routine mainly cheks mainly if the user has specified the mode in which the command has to be executed. Does it have to execute in
+   background or foreground . So to specify this the user inputs a "%" followed by a job id or directly the pid. So in this routine we
+   first check if the user has entered a "%" or directly a number. If a "%" has been entered then the charecter following the symbol is
+   converted to integer which is the jid of job, which is then checked for in the joblist. If it is found in the list means that it is a foreground
+   job. Checks for the state of the particular job if it is stopped or background then changes the state to foreground and executes it. If the
+   user has entered a number then it is the pid which has to be searched for in the list. Same procedure is reapeted for a background job.
+   
+4 . waitfg()
+    This routine is provided with a pid of a particular job, which is searched for in the job list which is maintained throughout. If the is a
+    Foreground job then it waits for the job to get finished, and doesn't emit a prompt on the screen.
+
+5. sigchld_handler() 
+    This routine is responsible for handling SIGCHILD signals to the shell. It is used to take care of the terminated children and preventing 
+    them from becoming zombies. It checks for the resons of the termination of the child process, namely because of a uncaught signal, or because 
+	of a chld that curently stopped or because of it terminated normally beacuse of return or exit call. Handles all the three conditions 
+	and prompts the user about the termination of the signal.
+	
+6. sigint_handler()
+   This routine is responsible for handling a SIGINT signal which is sent whenever the user enters a ctrl+c from the keyboard. It terminates the 
+   current process in execution.
+   
+7. sigstp_handler()
+   This routine is responsible for handling a SIGINT signal which is sent whenever the user enters a ctrl+z from the keyboard. It Stops the 
+   current process in execution.
